@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:health_ai_application/models/post.dart';
@@ -19,9 +17,9 @@ class _PostCardState extends State<PostCard> {
   @override
   void initState() {
     super.initState();
-    if (widget.post.mediaType == 'video' && widget.post.mediaPath != null) {
+    if (widget.post.mediaType == 'video' && widget.post.mediaUrl != null) {
       try {
-        _videoController = VideoPlayerController.file(File(widget.post.mediaPath!))
+        _videoController = VideoPlayerController.networkUrl(Uri.parse(widget.post.mediaUrl!))
           ..initialize().then((_) {
             setState(() {});
           });
@@ -81,17 +79,17 @@ class _PostCardState extends State<PostCard> {
             ),
             const SizedBox(height: 12),
             Text(post.content, style: const TextStyle(fontSize: 15, height: 1.4)),
-            if (post.mediaPath != null) const SizedBox(height: 12),
-            if (post.mediaPath != null && post.mediaType == 'image')
+            if (post.mediaUrl != null) const SizedBox(height: 12),
+            if (post.mediaUrl != null && post.mediaType == 'image')
               SizedBox(
                 height: 200,
                 width: double.infinity,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.file(File(post.mediaPath!), fit: BoxFit.cover),
+                  child: Image.network(post.mediaUrl!, fit: BoxFit.cover),
                 ),
               ),
-            if (post.mediaPath != null && post.mediaType == 'video')
+            if (post.mediaUrl != null && post.mediaType == 'video')
               SizedBox(
                 height: 220,
                 width: double.infinity,

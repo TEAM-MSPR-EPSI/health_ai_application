@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:health_ai_application/services/fake_social_repository.dart';
+import 'package:health_ai_application/controllers/feed_controller.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -14,8 +15,10 @@ class CreatePostPage extends StatefulWidget {
 class _CreatePostPageState extends State<CreatePostPage> {
   final _controller = TextEditingController();
   final ImagePicker _picker = ImagePicker();
+  final FeedController _feedController = Get.find<FeedController>();
   XFile? _pickedMedia;
   String? _pickedMediaType; // 'image' or 'video'
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -23,7 +26,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final text = _controller.text.trim();
     if (text.isEmpty && _pickedMedia == null) {
       // prevent empty post when no media attached
@@ -33,20 +36,29 @@ class _CreatePostPageState extends State<CreatePostPage> {
       return;
     }
 
-    FakeSocialRepository.instance.addPost(
-      text,
-      mediaPath: _pickedMedia?.path,
-      mediaType: _pickedMediaType,
-    );
-    _controller.clear();
-    setState(() {
-      _pickedMedia = null;
-      _pickedMediaType = null;
-    });
+    setState(() => _isSubmitting = true);
+    try {
+      await _feedController.createPost(content: text, media: _pickedMedia);
+      _controller.clear();
+      setState(() {
+        _pickedMedia = null;
+        _pickedMediaType = null;
+      });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Actualité publiée avec succès.')),
-    );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Actualite publiee avec succes.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 
   Future<void> _pickImage() async {
@@ -133,9 +145,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
               ),
             const SizedBox(height: 16),
             FilledButton.icon(
-              onPressed: _submit,
+              onPressed: _isSubmitting ? null : _submit,
               icon: const Icon(Icons.send),
-              label: const Text('Publier'),
+              label: Text(_isSubmitting ? 'Publication...' : 'Publier'),
             ),
           ],
         ),

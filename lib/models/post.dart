@@ -4,8 +4,8 @@ class Post {
   final String authorHandle;
   final String content;
   final DateTime createdAt;
-  // Optional media attached to the post. Path is a local file path on device.
-  final String? mediaPath;
+  // Optional media URL served by backend.
+  final String? mediaUrl;
   // 'image' or 'video'
   final String? mediaType;
 
@@ -15,8 +15,20 @@ class Post {
     required this.authorHandle,
     required this.content,
     required this.createdAt,
-    this.mediaPath,
+    this.mediaUrl,
     this.mediaType,
   });
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      id: (json['_id'] ?? json['id']).toString(),
+      authorName: (json['authorName'] ?? '').toString(),
+      authorHandle: (json['authorHandle'] ?? '').toString(),
+      content: (json['content'] ?? '').toString(),
+      createdAt: DateTime.tryParse((json['createdAt'] ?? '').toString()) ?? DateTime.now(),
+      mediaUrl: json['mediaUrl']?.toString(),
+      mediaType: json['mediaType']?.toString(),
+    );
+  }
 }
 
