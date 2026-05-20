@@ -31,7 +31,8 @@ class FakeSocialRepository {
   UserProfile get profile => _profile;
   List<Post> getPosts() => List.unmodifiable(_posts.reversed);
 
-  void addPost(String content) {
+  /// Add a post with optional media (local file path).
+  void addPost(String content, {String? mediaPath, String? mediaType}) {
     _posts.add(
       Post(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -39,6 +40,8 @@ class FakeSocialRepository {
         authorHandle: _profile.username,
         content: content,
         createdAt: DateTime.now(),
+        mediaPath: mediaPath,
+        mediaType: mediaType,
       ),
     );
   }
