@@ -15,19 +15,17 @@ class MainNavigationPage extends StatefulWidget {
 class _MainNavigationPageState extends State<MainNavigationPage> {
   final NavigationController _navigationController = Get.find<NavigationController>();
 
-  final pages = const [
-    FeedPage(),
-    CreatePostPage(),
-    ProfilePage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => Scaffold(
         body: IndexedStack(
           index: _navigationController.currentIndex.value,
-          children: pages,
+          children: const [
+            FeedPage(key: PageStorageKey('feed-page')),
+            CreatePostPage(key: PageStorageKey('create-post-page')),
+            ProfilePage(key: PageStorageKey('profile-page')),
+          ],
         ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _navigationController.currentIndex.value,
