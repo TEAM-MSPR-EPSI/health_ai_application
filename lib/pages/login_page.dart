@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:health_ai_application/controllers/auth_controller.dart';
+import 'package:health_ai_application/pages/main_navigation_page.dart';
 import 'package:health_ai_application/services/api_config.dart';
 import 'package:health_ai_application/services/local_network_detector.dart';
 import 'package:health_ai_application/widgets/frosted_surface.dart';
@@ -211,9 +212,11 @@ class _LoginPageState extends State<LoginPage> {
         _passwordController.text,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Connexion reussie.')),
-      );
+      if (Navigator.of(context).canPop()) {
+        Get.back();
+      } else {
+        Get.offAll(() => const MainNavigationPage());
+      }
     } catch (error) {
       if (!mounted) return;
       final warning = _authController.bootstrapError.value;
@@ -237,12 +240,12 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Stack(
-          children: [
-            const Positioned.fill(child: AppBackdrop()),
-            SafeArea(
+      body: Stack(
+        children: [
+          const Positioned.fill(child: AppBackdrop()),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -299,8 +302,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

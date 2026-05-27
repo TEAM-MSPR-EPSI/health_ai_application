@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:health_ai_application/controllers/feed_controller.dart';
+import 'package:health_ai_application/controllers/navigation_controller.dart';
 import 'package:health_ai_application/widgets/frosted_surface.dart';
 
 class CreatePostPage extends StatefulWidget {
@@ -45,6 +46,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
         _pickedMedia = null;
         _pickedMediaType = null;
       });
+
+      if (Get.isRegistered<NavigationController>()) {
+        Get.find<NavigationController>().setIndex(0);
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -94,12 +99,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
         leadingWidth: 72,
         title: const Text('Nouvelle publication'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Stack(
-          children: [
-            const Positioned.fill(child: AppBackdrop()),
-            SafeArea(
+      body: Stack(
+        children: [
+          const Positioned.fill(child: AppBackdrop()),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
                 child: FrostedSurface(
                   padding: const EdgeInsets.all(20),
@@ -187,8 +192,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

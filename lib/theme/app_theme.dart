@@ -13,7 +13,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      scaffoldBackgroundColor: const Color(0xFFF1F4F8),
+      scaffoldBackgroundColor: const Color(0xFFF7F9FC),
       appBarTheme: const AppBarTheme(
         centerTitle: false,
         elevation: 0,
@@ -21,11 +21,12 @@ class AppTheme {
         foregroundColor: Color(0xFF122126),
         surfaceTintColor: Colors.transparent,
         scrolledUnderElevation: 0,
-        titleSpacing: 0,
+        titleSpacing: 16,
+        toolbarHeight: 64,
         iconTheme: IconThemeData(color: Color(0xFF122126)),
       ),
       cardTheme: CardThemeData(
-        color: Colors.white.withValues(alpha: 0.66),
+        color: Colors.white.withValues(alpha: 0.54),
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -46,18 +47,18 @@ class AppTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: Colors.white.withValues(alpha: 0.72),
-        indicatorColor: scheme.primary.withValues(alpha: 0.14),
+        backgroundColor: Colors.white.withValues(alpha: 0.64),
+        indicatorColor: scheme.primary.withValues(alpha: 0.12),
         surfaceTintColor: Colors.transparent,
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: Colors.white.withValues(alpha: 0.82),
+        backgroundColor: Colors.white.withValues(alpha: 0.74),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.74),
+        fillColor: Colors.white.withValues(alpha: 0.66),
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
@@ -65,7 +66,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.45)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.38)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),

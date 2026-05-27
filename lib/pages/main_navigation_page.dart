@@ -31,31 +31,37 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
             ProfilePage(key: PageStorageKey('profile-page')),
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _navigationController.currentIndex.value,
-          onDestinationSelected: (index) {
-            if (index == 0) {
-              unawaited(_feedController.loadPosts());
-            }
-            _navigationController.setIndex(index);
-          },
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.dynamic_feed_outlined),
-              selectedIcon: Icon(Icons.dynamic_feed),
-              label: 'Fil',
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: NavigationBar(
+              selectedIndex: _navigationController.currentIndex.value,
+              onDestinationSelected: (index) {
+                if (index == 0) {
+                  unawaited(_feedController.loadPosts());
+                }
+                _navigationController.setIndex(index);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.dynamic_feed_outlined),
+                  selectedIcon: Icon(Icons.dynamic_feed),
+                  label: 'Fil',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.add_box_outlined),
+                  selectedIcon: Icon(Icons.add_box),
+                  label: 'Publier',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.person_outline),
+                  selectedIcon: Icon(Icons.person),
+                  label: 'Compte',
+                ),
+              ],
             ),
-            NavigationDestination(
-              icon: Icon(Icons.add_box_outlined),
-              selectedIcon: Icon(Icons.add_box),
-              label: 'Publier',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Compte',
-            ),
-          ],
+          ),
         ),
       ),
     );

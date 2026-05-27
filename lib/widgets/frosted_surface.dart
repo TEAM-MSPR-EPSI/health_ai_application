@@ -13,9 +13,9 @@ class AppBackdrop extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFFF4F8FC),
-            const Color(0xFFE8F1EC),
-            const Color(0xFFF6F2EE).withValues(alpha: 0.92),
+            const Color(0xFFF9FBFD),
+            const Color(0xFFF5F7FB),
+            const Color(0xFFF2F5F9),
           ],
         ),
       ),
@@ -24,17 +24,17 @@ class AppBackdrop extends StatelessWidget {
           Positioned(
             top: -80,
             right: -40,
-            child: _GlowBlob(color: const Color(0xFF7DD3C7).withValues(alpha: 0.22), size: 220),
+            child: _GlowBlob(color: Colors.white.withValues(alpha: 0.72), size: 220),
           ),
           Positioned(
             top: 120,
             left: -60,
-            child: _GlowBlob(color: const Color(0xFF9AE6B4).withValues(alpha: 0.16), size: 180),
+            child: _GlowBlob(color: Colors.white.withValues(alpha: 0.62), size: 180),
           ),
           Positioned(
             bottom: -70,
             right: 40,
-            child: _GlowBlob(color: const Color(0xFFB4C6FF).withValues(alpha: 0.14), size: 200),
+            child: _GlowBlob(color: Colors.white.withValues(alpha: 0.54), size: 200),
           ),
         ],
       ),
@@ -62,7 +62,7 @@ class FrostedSurface extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.52)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.56)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -79,10 +79,10 @@ class FrostedSurface extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
             padding: padding,
-            color: Colors.white.withValues(alpha: 0.58),
+            color: Colors.white.withValues(alpha: 0.48),
             child: child,
           ),
         ),

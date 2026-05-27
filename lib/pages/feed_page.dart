@@ -18,16 +18,16 @@ class FeedPage extends StatelessWidget {
         leadingWidth: 72,
         title: const Text('Fil d\'actualité'),
       ),
-      body: Obx(
-        () {
-          if (feedController.isLoading.value && feedController.posts.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Stack(
+        children: [
+          const Positioned.fill(child: AppBackdrop()),
+          Obx(
+            () {
+              if (feedController.isLoading.value && feedController.posts.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          return Stack(
-            children: [
-              const Positioned.fill(child: AppBackdrop()),
-              RefreshIndicator(
+              return RefreshIndicator(
                 onRefresh: feedController.loadPosts,
                 child: ListView(
                   padding: const EdgeInsets.all(16),
@@ -67,10 +67,10 @@ class FeedPage extends StatelessWidget {
                     ...feedController.posts.map((post) => PostCard(post: post)),
                   ],
                 ),
-              ),
-            ],
-          );
-        },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
