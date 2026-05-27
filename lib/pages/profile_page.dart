@@ -4,6 +4,7 @@ import 'package:health_ai_application/controllers/auth_controller.dart';
 import 'package:health_ai_application/controllers/feed_controller.dart';
 import 'package:health_ai_application/models/user_profile.dart';
 import 'package:health_ai_application/widgets/avatar_badge.dart';
+import 'package:health_ai_application/widgets/frosted_surface.dart';
 import 'package:health_ai_application/widgets/post_card.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -51,6 +52,8 @@ class _ProfilePageState extends State<ProfilePage> {
     final updated = await showModalBottomSheet<UserProfile>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
@@ -63,17 +66,17 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Modifier le profil',
+                'Mettre à jour le profil',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              TextField(controller: firstNameController, decoration: const InputDecoration(labelText: 'Prenom')),
+              TextField(controller: firstNameController, decoration: const InputDecoration(labelText: 'Prénom')),
               const SizedBox(height: 12),
               TextField(controller: lastNameController, decoration: const InputDecoration(labelText: 'Nom')),
               const SizedBox(height: 12),
               TextField(controller: usernameController, decoration: const InputDecoration(labelText: 'Pseudo')),
               const SizedBox(height: 12),
-              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Telephone')),
+              TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Téléphone')),
               const SizedBox(height: 12),
               TextField(controller: cityController, decoration: const InputDecoration(labelText: 'Ville')),
               const SizedBox(height: 12),
@@ -81,8 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () {
-                  final navigator = Navigator.of(context);
-                  navigator.pop(
+                  Navigator.of(context).pop(
                     profile.copyWith(
                       firstName: firstNameController.text.trim(),
                       lastName: lastNameController.text.trim(),
@@ -119,6 +121,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final choice = await showModalBottomSheet<String>(
       context: context,
+      useSafeArea: true,
+      showDragHandle: true,
       builder: (context) {
         return SafeArea(
           child: Column(
@@ -167,6 +171,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<String?> _pickEmojiAvatar() {
     return showModalBottomSheet<String>(
       context: context,
+      useSafeArea: true,
+      showDragHandle: true,
       builder: (context) {
         const emojis = ['😀', '😎', '💪', '🌿', '❤️', '🏃', '🧠', '🥗'];
         return SafeArea(
@@ -189,32 +195,34 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        final profile = _authController.currentUser.value;
-        if (profile == null) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+    return Obx(() {
+      final profile = _authController.currentUser.value;
+      if (profile == null) {
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Mon compte'),
-            actions: [
-              IconButton(
-                onPressed: _authController.logout,
-                icon: const Icon(Icons.logout),
-              ),
-            ],
-          ),
-          body: RefreshIndicator(
-            onRefresh: _feedController.loadMyPosts,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Card(
-                  child: Padding(
+      return Scaffold(
+        appBar: AppBar(
+          leadingWidth: 72,
+          title: const Text('Mon compte'),
+          actions: [
+            IconButton(
+              onPressed: _authController.logout,
+              icon: const Icon(Icons.logout),
+            ),
+          ],
+        ),
+        body: RefreshIndicator(
+          onRefresh: _feedController.loadMyPosts,
+          child: Stack(
+            children: [
+              const Positioned.fill(child: AppBackdrop()),
+              ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  FrostedSurface(
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
@@ -231,28 +239,26 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 12),
                         Text(profile.email, textAlign: TextAlign.center),
                         const SizedBox(height: 6),
-                        Text('Tel: ${profile.phone}', textAlign: TextAlign.center),
+                        Text('Téléphone : ${profile.phone}', textAlign: TextAlign.center),
                         const SizedBox(height: 6),
-                        Text('Ville: ${profile.city ?? '-'} | Pays: ${profile.country ?? '-'}', textAlign: TextAlign.center),
+                        Text('Ville : ${profile.city ?? '-'}  •  Pays : ${profile.country ?? '-'}', textAlign: TextAlign.center),
                         const SizedBox(height: 16),
                         FilledButton.icon(
                           onPressed: _changeAvatar,
                           icon: const Icon(Icons.account_circle_outlined),
-                          label: const Text('Changer la photo / emoji'),
+                          label: const Text('Mettre à jour l’avatar'),
                         ),
                         const SizedBox(height: 8),
                         OutlinedButton.icon(
                           onPressed: () => _editProfile(profile),
                           icon: const Icon(Icons.edit),
-                          label: const Text('Modifier le profil'),
+                          label: const Text('Modifier les informations'),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Obx(
-                  () {
+                  const SizedBox(height: 20),
+                  Obx(() {
                     final warning = _authController.bootstrapError.value;
                     if (warning == null || warning.isEmpty) {
                       return const SizedBox.shrink();
@@ -273,31 +279,27 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     );
-                  },
-                ),
-                const Text('Mes publications', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                Obx(
-                  () {
+                  }),
+                  const Text('Publications récentes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Obx(() {
                     if (_feedController.myPosts.isEmpty) {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 24),
-                        child: Text('Aucune publication pour le moment.'),
+                        child: Text('Aucune publication enregistrée pour le moment.'),
                       );
                     }
 
                     return Column(
                       children: _feedController.myPosts.map((post) => PostCard(post: post)).toList(),
                     );
-                  },
-                ),
-              ],
-            ),
+                  }),
+                ],
+              ),
+            ],
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 }
-
-

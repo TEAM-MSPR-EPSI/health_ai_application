@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:health_ai_application/controllers/auth_controller.dart';
 import 'package:health_ai_application/services/api_config.dart';
 import 'package:health_ai_application/services/local_network_detector.dart';
+import 'package:health_ai_application/widgets/frosted_surface.dart';
 import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
@@ -41,6 +42,8 @@ class _LoginPageState extends State<LoginPage> {
     final updated = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
       builder: (context) {
         var isDetecting = false;
         final presets = <Map<String, String>>[
@@ -63,12 +66,12 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
-                    'Connexion au backend Docker',
+                    'Configuration du serveur API',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Android emulator: ${ApiConfig.defaultBaseUrl}\nTéléphone physique: utilise l\'IP LAN de ton PC, par exemple http://192.168.1.20:5000',
+                    'Choisissez l\'adresse joignable depuis l\'appareil courant. Sur téléphone physique, utilisez l\'IP locale du PC ou le point d\'accès partagé.',
                     style: TextStyle(color: Colors.grey.shade700),
                   ),
                   const SizedBox(height: 12),
@@ -85,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'La détection automatique scanne le sous-réseau Wi-Fi actif et propose le backend qui répond sur le port 5000.',
+                    'La détection automatique recherche un backend HealthAI disponible sur le réseau actif.',
                     style: TextStyle(color: Colors.grey.shade700, fontSize: 12.5),
                   ),
                   const SizedBox(height: 16),
@@ -101,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, ApiConfig.defaultBaseUrl),
-                        child: const Text('Par défaut'),
+                        child: const Text('Valeur recommandée'),
                       ),
                       const SizedBox(width: 8),
                       TextButton(
@@ -117,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                                   if (detected == null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Aucun backend détecté sur le réseau local. Vérifie que le PC et le téléphone sont sur le même hotspot et que le port 5000 est ouvert.'),
+                                        content: Text('Aucun backend n\'a été détecté sur le réseau local. Vérifiez que le PC et l\'appareil sont sur le même réseau et que le port 5000 est accessible.'),
                                       ),
                                     );
                                     return;
@@ -148,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                             final normalized = await _probeBaseUrl(controller.text);
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('API joignable depuis l’appareil sur : $normalized')),
+                              SnackBar(content: Text('Serveur API joignable sur : $normalized')),
                             );
                           } catch (error) {
                             if (!context.mounted) return;
@@ -189,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('API configurée sur ${ApiConfig.baseUrl}')),
+      SnackBar(content: Text('Serveur API enregistré : ${ApiConfig.baseUrl}')),
     );
   }
 
@@ -224,7 +227,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Connexion'),
+        leadingWidth: 72,
+        title: const Text('Accès à HealthAI'),
         actions: [
           IconButton(
             onPressed: _editServerUrl,
@@ -235,42 +239,64 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            const SizedBox(height: 20),
-            const Text(
-              "Connectez-vous pour accéder à l'application",
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Backend: ${ApiConfig.baseUrl}',
-              style: TextStyle(color: Colors.grey.shade700),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Mot de passe'),
-            ),
-            const SizedBox(height: 24),
-            Obx(
-              () => FilledButton(
-                onPressed: _authController.isLoading.value ? null : _submit,
-                child: _authController.isLoading.value
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Se connecter'),
+            const Positioned.fill(child: AppBackdrop()),
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 24),
+                    FrostedSurface(
+                      padding: const EdgeInsets.all(22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'Accédez à votre espace HealthAI',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Connectez-vous pour consulter votre fil, vos publications et votre profil.',
+                            style: TextStyle(color: Colors.grey.shade700),
+                          ),
+                          const SizedBox(height: 18),
+                          Text(
+                            'Serveur actif : ${ApiConfig.baseUrl}',
+                            style: TextStyle(color: Colors.grey.shade700),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: const InputDecoration(labelText: 'Adresse e-mail'),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: const InputDecoration(labelText: 'Mot de passe'),
+                          ),
+                          const SizedBox(height: 20),
+                          Obx(
+                            () => FilledButton(
+                              onPressed: _authController.isLoading.value ? null : _submit,
+                              child: _authController.isLoading.value
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : const Text('Se connecter'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

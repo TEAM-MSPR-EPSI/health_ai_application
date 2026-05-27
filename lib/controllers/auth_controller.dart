@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:health_ai_application/models/user_profile.dart';
 import 'package:health_ai_application/controllers/feed_controller.dart';
+import 'package:health_ai_application/controllers/navigation_controller.dart';
 import 'package:health_ai_application/services/auth_api_service.dart';
 import 'package:health_ai_application/services/user_api_service.dart';
 
@@ -45,6 +46,10 @@ class AuthController extends GetxController {
             snackPosition: SnackPosition.BOTTOM,
           );
         }
+      }
+
+      if (Get.isRegistered<NavigationController>()) {
+        Get.find<NavigationController>().setIndex(0);
       }
     } catch (error) {
       logout(clearBootstrapError: false);

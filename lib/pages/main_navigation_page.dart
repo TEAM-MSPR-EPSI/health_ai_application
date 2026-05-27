@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:health_ai_application/controllers/feed_controller.dart';
 import 'package:health_ai_application/controllers/navigation_controller.dart';
 import 'package:health_ai_application/pages/create_post_page.dart';
 import 'package:health_ai_application/pages/feed_page.dart';
@@ -14,6 +17,7 @@ class MainNavigationPage extends StatefulWidget {
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   final NavigationController _navigationController = Get.find<NavigationController>();
+  final FeedController _feedController = Get.find<FeedController>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +33,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _navigationController.currentIndex.value,
-          onDestinationSelected: _navigationController.setIndex,
+          onDestinationSelected: (index) {
+            if (index == 0) {
+              unawaited(_feedController.loadPosts());
+            }
+            _navigationController.setIndex(index);
+          },
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.dynamic_feed_outlined),
