@@ -55,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
 
         return StatefulBuilder(
           builder: (context, setState) {
-            return Padding(
+            return SingleChildScrollView(
               padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
@@ -100,14 +100,16 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: 'http://192.168.1.20:5000',
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
+                  const SizedBox(height: 14),
+                  Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, ApiConfig.defaultBaseUrl),
                         child: const Text('Valeur recommandée'),
                       ),
-                      const SizedBox(width: 8),
                       TextButton(
                         onPressed: isDetecting
                             ? null
@@ -145,7 +147,6 @@ class _LoginPageState extends State<LoginPage> {
                               )
                             : const Text('Détecter'),
                       ),
-                      const Spacer(),
                       TextButton(
                         onPressed: () async {
                           try {
@@ -163,7 +164,6 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         child: const Text('Tester'),
                       ),
-                      const SizedBox(width: 8),
                       FilledButton(
                         onPressed: () => Navigator.pop(context, controller.text.trim()),
                         child: const Text('Enregistrer'),
