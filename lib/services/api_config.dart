@@ -7,11 +7,22 @@ class ApiConfig {
     'API_BASE_URL',
     defaultValue: '',
   );
-  static const String _storageKey = 'api_base_url';
   static const String _hotspotGatewayBaseUrl = 'http://192.168.137.1:5000';
 
   static String? _baseUrl;
   static bool _isPhysicalMobileDevice = false;
+
+  static String get _storageKey {
+    if (kIsWeb) return 'api_base_url_web';
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return _isPhysicalMobileDevice ? 'api_base_url_android_physical' : 'api_base_url_android_emulator';
+      case TargetPlatform.iOS:
+        return _isPhysicalMobileDevice ? 'api_base_url_ios_physical' : 'api_base_url_ios_simulator';
+      default:
+        return 'api_base_url_desktop';
+    }
+  }
 
   static String get defaultBaseUrl {
     if (kIsWeb) return 'http://localhost:5000';
@@ -92,6 +103,9 @@ class ApiConfig {
       if (_isPhysicalMobileDevice && _looksLikeLoopbackOrEmulator(stored)) {
         _baseUrl = defaultBaseUrl;
         await prefs.setString(_storageKey, _baseUrl!);
+      } else if (!_isPhysicalMobileDevice && _looksLikePhysicalMobileGateway(stored)) {
+        _baseUrl = defaultBaseUrl;
+        await prefs.setString(_storageKey, _baseUrl!);
       } else {
         _baseUrl = stored;
       }
@@ -139,5 +153,15 @@ class ApiConfig {
     final parsed = Uri.tryParse(value.startsWith('http') ? value : 'http://$value');
     final host = parsed?.host.toLowerCase();
     return host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2';
+  }
+
+  static bool _looksLikePhysicalMobileGateway(String value) {
+    final parsed = Uri.tryParse(value.startsWith('http') ? value : 'http://$value');
+    final host = parsed?.host.toLowerCase();
+    if (host == null) {
+      return false;
+    }
+
+    return host.startsWith('192.168.') || host.startsWith('10.') || host.startsWith('172.16.') || host.startsWith('172.17.') || host.startsWith('172.18.') || host.startsWith('172.19.') || host.startsWith('172.20.') || host.startsWith('172.21.') || host.startsWith('172.22.') || host.startsWith('172.23.') || host.startsWith('172.24.') || host.startsWith('172.25.') || host.startsWith('172.26.') || host.startsWith('172.27.') || host.startsWith('172.28.') || host.startsWith('172.29.') || host.startsWith('172.30.') || host.startsWith('172.31.');
   }
 }

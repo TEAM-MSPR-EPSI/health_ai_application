@@ -6,6 +6,34 @@ import 'package:health_ai_application/models/post.dart';
 import 'package:health_ai_application/services/api_config.dart';
 
 class SocialApiService {
+  String? _inferMediaType(String? fileName) {
+    final extension = fileName == null ? '' : fileName.toLowerCase().split('.').last;
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'webp':
+      case 'bmp':
+      case 'heic':
+      case 'heif':
+      case 'tif':
+      case 'tiff':
+        return 'image';
+      case 'mp4':
+      case 'mov':
+      case 'm4v':
+      case 'avi':
+      case 'mkv':
+      case 'webm':
+      case '3gp':
+      case 'wmv':
+        return 'video';
+      default:
+        return null;
+    }
+  }
+
   Future<List<Post>> getPosts({required String token}) async {
     final uri = Uri.parse('${ApiConfig.baseUrl}/api/social-posts');
     final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
@@ -45,7 +73,17 @@ class SocialApiService {
       ..fields['content'] = content;
 
     if (media != null) {
-      request.files.add(await http.MultipartFile.fromPath('media', media.path));
+      final inferredType = _inferMediaType(media.name);
+      if (inferredType != null) {
+        request.fields['mediaType'] = inferredType;
+      }
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'media',
+          media.path,
+          filename: media.name,
+        ),
+      );
     }
 
     final streamed = await request.send();
@@ -103,7 +141,17 @@ class SocialApiService {
       ..fields['content'] = content;
 
     if (media != null) {
-      request.files.add(await http.MultipartFile.fromPath('media', media.path));
+      final inferredType = _inferMediaType(media.name);
+      if (inferredType != null) {
+        request.fields['mediaType'] = inferredType;
+      }
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'media',
+          media.path,
+          filename: media.name,
+        ),
+      );
     }
 
     final streamed = await request.send();
