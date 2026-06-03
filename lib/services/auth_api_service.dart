@@ -1,37 +1,42 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:async';
 
-import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:health_ai_application/services/api_config.dart';
 
-class AuthApiService extends GetConnect {
-  @override
-  void onInit() {
-    httpClient.baseUrl = ApiConfig.baseUrl;
-    httpClient.timeout = const Duration(seconds: 20);
-    super.onInit();
-  }
-
+class AuthApiService {
   Future<String> login({required String email, required String password}) async {
-    final response = await post('/api/auth/login', {
-      'email': email,
-      'password': password,
-    });
+    try {
+      final uri = ApiConfig.buildApiUri('/api/auth/login');
+      final response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
 
-    if (!response.isOk || response.body == null) {
-      final statusCode = response.statusCode;
-      final details = response.bodyString ?? response.statusText ?? 'Aucun detail';
-      throw Exception('Echec login (HTTP $statusCode): $details');
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Echec login (HTTP ${response.statusCode}): ${response.body}');
+      }
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final token = body['token']?.toString();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token manquant dans la reponse API.');
+      }
+
+      return token;
+    } on SocketException catch (error) {
+      throw Exception('API inaccessible depuis cet appareil: ${error.message}');
+    } on TimeoutException {
+      throw Exception('Délai dépassé en contactant l’API. Vérifie l’IP du PC, le Wi-Fi partagé et le pare-feu.');
+    } on HttpException catch (error) {
+      throw Exception('Erreur HTTP réseau: ${error.message}');
+    } on FormatException catch (error) {
+      throw Exception(error.message);
     }
-
-    final body = response.body is Map
-        ? response.body as Map
-        : jsonDecode(response.bodyString ?? '{}') as Map;
-
-    final token = body['token']?.toString();
-    if (token == null || token.isEmpty) {
-      throw Exception('Token manquant dans la reponse API.');
-    }
-
-    return token;
   }
 }

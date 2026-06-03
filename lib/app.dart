@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:health_ai_application/controllers/auth_controller.dart';
 import 'package:health_ai_application/controllers/feed_controller.dart';
 import 'package:health_ai_application/controllers/navigation_controller.dart';
-import 'package:health_ai_application/pages/login_page.dart';
 import 'package:health_ai_application/pages/main_navigation_page.dart';
+import 'package:health_ai_application/pages/welcome_page.dart';
 import 'package:health_ai_application/services/auth_api_service.dart';
 import 'package:health_ai_application/services/social_api_service.dart';
 import 'package:health_ai_application/services/user_api_service.dart';
@@ -49,17 +49,36 @@ class HealthAiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _initDependencies();
-    final authController = Get.find<AuthController>();
 
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'HealthAI Mobile',
       theme: AppTheme.lightTheme,
-      home: Obx(
-        () => authController.token.value == null
-            ? const LoginPage()
-            : const MainNavigationPage(),
-      ),
+      home: const AuthGate(),
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authController = Get.find<AuthController>();
+
+    return Obx(
+      () {
+        final loggedIn = authController.token.value != null;
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          child: KeyedSubtree(
+            key: ValueKey<bool>(loggedIn),
+            child: loggedIn
+                ? const MainNavigationPage()
+                : const WelcomePage(),
+          ),
+        );
+      },
     );
   }
 }
