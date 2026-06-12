@@ -8,7 +8,7 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   Future<void> _openSignup(BuildContext context) async {
-    final signupUri = ApiConfig.buildWebAppUri('/welcome', port: 4200);
+    final signupUri = ApiConfig.buildWebAppUri('/register', port: 4200);
     final opened = await launchUrl(
       signupUri,
       mode: LaunchMode.externalApplication,
