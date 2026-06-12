@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:health_ai_application/controllers/auth_controller.dart';
 import 'package:health_ai_application/controllers/feed_controller.dart';
+import 'package:health_ai_application/widgets/app_logo.dart';
 import 'package:health_ai_application/widgets/frosted_surface.dart';
 import 'package:health_ai_application/widgets/post_card.dart';
 
@@ -16,6 +17,7 @@ class FeedPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 72,
+        leading: const Center(child: AppLogo(size: 34)),
         title: const Text('Fil d\'actualité'),
       ),
       body: Stack(

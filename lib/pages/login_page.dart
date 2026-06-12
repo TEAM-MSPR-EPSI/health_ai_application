@@ -4,6 +4,7 @@ import 'package:health_ai_application/controllers/auth_controller.dart';
 import 'package:health_ai_application/pages/main_navigation_page.dart';
 import 'package:health_ai_application/services/api_config.dart';
 import 'package:health_ai_application/services/local_network_detector.dart';
+import 'package:health_ai_application/widgets/app_logo.dart';
 import 'package:health_ai_application/widgets/frosted_surface.dart';
 import 'package:http/http.dart' as http;
 
@@ -231,6 +232,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 72,
+        leading: const Center(child: AppLogo(size: 34)),
         title: const Text('Accès à HealthAI'),
         actions: [
           IconButton(
@@ -250,6 +252,8 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const SizedBox(height: 12),
+                    const Center(child: AppLogo(size: 80)),
                     const SizedBox(height: 24),
                     FrostedSurface(
                       padding: const EdgeInsets.all(22),

@@ -177,6 +177,23 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
+  Future<bool> _checkFileSize(XFile file, {int maxMb = 10}) async {
+    final sizeInBytes = await file.length();
+    final sizeInMb = sizeInBytes / (1024 * 1024);
+
+    if (sizeInMb > maxMb) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Le fichier est trop volumineux (${sizeInMb.toStringAsFixed(1)} Mo). La limite est de $maxMb Mo.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
   Future<void> _openEditSheet(FeedController feedController) async {
     final contentController = TextEditingController(text: widget.post.content);
     XFile? selectedMedia;
@@ -191,8 +208,31 @@ class _PostCardState extends State<PostCard> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             Future<void> pickImage() async {
-              final file = await _picker.pickImage(source: ImageSource.gallery);
+              final choice = await showModalBottomSheet<ImageSource>(
+                context: context,
+                showDragHandle: true,
+                builder: (context) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.photo_library),
+                        title: const Text('Galerie'),
+                        onTap: () => Navigator.pop(context, ImageSource.gallery),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.camera_alt),
+                        title: const Text('Appareil photo'),
+                        onTap: () => Navigator.pop(context, ImageSource.camera),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+              if (choice == null) return;
+              final file = await _picker.pickImage(source: choice);
               if (file == null) return;
+              if (!(await _checkFileSize(file, maxMb: 5))) return;
               setModalState(() {
                 selectedMedia = file;
                 selectedMediaType = 'image';
@@ -200,8 +240,31 @@ class _PostCardState extends State<PostCard> {
             }
 
             Future<void> pickVideo() async {
-              final file = await _picker.pickVideo(source: ImageSource.gallery);
+              final choice = await showModalBottomSheet<ImageSource>(
+                context: context,
+                showDragHandle: true,
+                builder: (context) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.video_library),
+                        title: const Text('Galerie'),
+                        onTap: () => Navigator.pop(context, ImageSource.gallery),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.videocam),
+                        title: const Text('Appareil photo'),
+                        onTap: () => Navigator.pop(context, ImageSource.camera),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+              if (choice == null) return;
+              final file = await _picker.pickVideo(source: choice);
               if (file == null) return;
+              if (!(await _checkFileSize(file, maxMb: 20))) return;
               setModalState(() {
                 selectedMedia = file;
                 selectedMediaType = 'video';
