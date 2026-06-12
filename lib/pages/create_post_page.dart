@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:health_ai_application/controllers/feed_controller.dart';
 import 'package:health_ai_application/controllers/navigation_controller.dart';
 import 'package:health_ai_application/widgets/frosted_surface.dart';
+import 'package:health_ai_application/widgets/app_logo.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -74,22 +75,70 @@ class _CreatePostPageState extends State<CreatePostPage> {
     });
   }
 
-  Future<void> _pickImage() async {
-    final file = await _picker.pickImage(source: ImageSource.gallery);
+  Future<bool> _checkFileSize(XFile file, {int maxMb = 10}) async {
+    final sizeInBytes = await file.length();
+    final sizeInMb = sizeInBytes / (1024 * 1024);
+
+    if (sizeInMb > maxMb) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Le fichier est trop volumineux (${sizeInMb.toStringAsFixed(1)} Mo). La limite est de $maxMb Mo.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _pickMedia(ImageSource source, String type) async {
+    XFile? file;
+    if (type == 'image') {
+      file = await _picker.pickImage(source: source);
+    } else {
+      file = await _picker.pickVideo(source: source);
+    }
+
     if (file == null) return;
+
+    final limit = type == 'image' ? 5 : 20;
+    if (!(await _checkFileSize(file, maxMb: limit))) return;
+
     setState(() {
       _pickedMedia = file;
-      _pickedMediaType = 'image';
+      _pickedMediaType = type;
     });
   }
 
-  Future<void> _pickVideo() async {
-    final file = await _picker.pickVideo(source: ImageSource.gallery);
-    if (file == null) return;
-    setState(() {
-      _pickedMedia = file;
-      _pickedMediaType = 'video';
-    });
+  Future<void> _showPickerOptions(String type) async {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: Text('Choisir une $type depuis la galerie'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickMedia(ImageSource.gallery, type);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: Text('Prendre une $type avec l’appareil'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickMedia(ImageSource.camera, type);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -97,6 +146,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 72,
+        leading: const Center(child: AppLogo(size: 34)),
         title: const Text('Nouvelle publication'),
       ),
       body: Stack(
@@ -133,13 +183,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       Row(
                         children: [
                           FilledButton.icon(
-                            onPressed: _pickImage,
+                            onPressed: () => _showPickerOptions('image'),
                             icon: const Icon(Icons.photo),
                             label: const Text('Image'),
                           ),
                           const SizedBox(width: 8),
                           FilledButton.icon(
-                            onPressed: _pickVideo,
+                            onPressed: () => _showPickerOptions('video'),
                             icon: const Icon(Icons.videocam),
                             label: const Text('Vidéo'),
                           ),

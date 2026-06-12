@@ -4,6 +4,7 @@ import 'package:health_ai_application/controllers/auth_controller.dart';
 import 'package:health_ai_application/controllers/feed_controller.dart';
 import 'package:health_ai_application/models/user_profile.dart';
 import 'package:health_ai_application/widgets/avatar_badge.dart';
+import 'package:health_ai_application/widgets/app_logo.dart';
 import 'package:health_ai_application/widgets/frosted_surface.dart';
 import 'package:health_ai_application/widgets/post_card.dart';
 import 'package:image_picker/image_picker.dart';
@@ -115,6 +116,23 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<bool> _checkFileSize(XFile file, {int maxMb = 5}) async {
+    final sizeInBytes = await file.length();
+    final sizeInMb = sizeInBytes / (1024 * 1024);
+
+    if (sizeInMb > maxMb) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('L’image est trop volumineuse (${sizeInMb.toStringAsFixed(1)} Mo). La limite est de $maxMb Mo.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
   Future<void> _changeAvatar() async {
     final profile = _authController.currentUser.value;
     if (profile == null) return;
@@ -129,9 +147,14 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.photo),
-                title: const Text('Ajouter une photo'),
-                onTap: () => Navigator.pop(context, 'photo'),
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choisir une photo (Galerie)'),
+                onTap: () => Navigator.pop(context, 'photo_gallery'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Prendre une photo (Appareil)'),
+                onTap: () => Navigator.pop(context, 'photo_camera'),
               ),
               ListTile(
                 leading: const Icon(Icons.emoji_emotions),
@@ -149,9 +172,13 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
 
-    if (choice == 'photo') {
-      final file = await _picker.pickImage(source: ImageSource.gallery);
+    if (choice == 'photo_gallery' || choice == 'photo_camera') {
+      final source = choice == 'photo_gallery' ? ImageSource.gallery : ImageSource.camera;
+      final file = await _picker.pickImage(source: source);
       if (file == null) return;
+
+      if (!(await _checkFileSize(file, maxMb: 2))) return;
+
       await _authController.updateAvatar(image: file);
       return;
     }
@@ -206,6 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
       return Scaffold(
         appBar: AppBar(
           leadingWidth: 72,
+          leading: const Center(child: AppLogo(size: 34)),
           title: const Text('Mon compte'),
           actions: [
             IconButton(
